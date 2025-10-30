@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Storage Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; }
+        .result { margin-top: 10px; padding: 10px; background: #f0f0f0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Storage Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test LocalStorage 직접 테스트</h2>
+        <button onclick="testDirectStorage()">직접 저장 테스트</button>
+        <button onclick="checkDirectStorage()">직접 읽기 테스트</button>
+        <div id="directResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Storage 모듈 테스트</h2>
+        <input type="text" id="testApiKey" placeholder="Gemini API Key 입력" style="width: 400px; padding: 8px;">
+        <br><br>
+        <button onclick="testStorageModule()">Storage 모듈로 저장</button>
+        <button onclick="loadStorageModule()">Storage 모듈로 읽기</button>
+        <div id="moduleResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 전체 설정 테스트</h2>
+        <button onclick="testFullSettings()">전체 설정 저장</button>
+        <button onclick="loadFullSettings()">전체 설정 읽기</button>
+        <button onclick="clearAllSettings()">전체 설정 삭제</button>
+        <div id="fullResult" class="result"></div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script>
+        function testDirectStorage() {
+            const result = document.getElementById('directResult');
+            try {
+                localStorage.setItem('test_key', 'test_value');
+                result.innerHTML = '<span class="success">✅ 직접 저장 성공!</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ 오류: ' + e.message + '</span>';
+            }
+        }
+
+        function checkDirectStorage() {
+            const result = document.getElementById('directResult');
+            const value = localStorage.getItem('test_key');
+            if (value) {
+                result.innerHTML = '<span class="success">✅ 읽기 성공: ' + value + '</span>';
+            } else {
+                result.innerHTML = '<span class="error">❌ 값이 없습니다</span>';
+            }
+        }
+
+        function testStorageModule() {
+            const result = document.getElementById('moduleResult');
+            const apiKey = document.getElementById('testApiKey').value;
+            
+            if (!apiKey) {
+                result.innerHTML = '<span class="error">❌ API 키를 입력하세요</span>';
+                return;
+            }
+
+            try {
+                const saved = Storage.Settings.saveGeminiApiKey(apiKey);
+                result.innerHTML = '<span class="success">✅ Storage 모듈 저장: ' + saved + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ 오류: ' + e.message + '</span>';
+            }
+        }
+
+        function loadStorageModule() {
+            const result = document.getElementById('moduleResult');
+            try {
+                const loaded = Storage.Settings.loadGeminiApiKey();
+                if (loaded) {
+                    result.innerHTML = '<span class="success">✅ 로드 성공: ' + loaded.substring(0, 10) + '...</span>';
+                } else {
+                    result.innerHTML = '<span class="error">❌ 저장된 값이 없습니다</span>';
+                }
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ 오류: ' + e.message + '</span>';
+            }
+        }
+
+        function testFullSettings() {
+            const result = document.getElementById('fullResult');
+            try {
+                Storage.Settings.saveGeminiApiKey('test_gemini_key_123');
+                Storage.Settings.saveGithubRepoUrl('https://github.com/test/repo');
+                Storage.Settings.saveTheme('dark');
+                Storage.Settings.saveFontSize('medium');
+                
+                result.innerHTML = '<span class="success">✅ 전체 설정 저장 완료</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ 오류: ' + e.message + '</span>';
+            }
+        }
+
+        function loadFullSettings() {
+            const result = document.getElementById('fullResult');
+            try {
+                const settings = Storage.Settings.loadAll();
+                result.innerHTML = '<span class="success">✅ 전체 설정:<br>' + 
+                    'Gemini API: ' + (settings.geminiApiKey || '없음') + '<br>' +
+                    'GitHub URL: ' + (settings.githubRepoUrl || '없음') + '<br>' +
+                    'Theme: ' + (settings.theme || '없음') + '<br>' +
+                    'Font Size: ' + (settings.fontSize || '없음') +
+                    '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ 오류: ' + e.message + '</span>';
+            }
+        }
+
+        function clearAllSettings() {
+            const result = document.getElementById('fullResult');
+            try {
+                localStorage.clear();
+                result.innerHTML = '<span class="success">✅ 전체 설정 삭제 완료</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ 오류: ' + e.message + '</span>';
+            }
+        }
+
+        // 페이지 로드 시 현재 저장된 값 표시
+        window.onload = function() {
+            console.log('📦 현재 LocalStorage:', localStorage);
+            loadFullSettings();
+        };
+    </script>
+</body>
+</html>
