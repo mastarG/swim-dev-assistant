@@ -93,10 +93,13 @@ const App = {
     document.getElementById('btnHistory')?.addEventListener('click', () => UI.toggleHistoryPanel());
     document.getElementById('btnSettings')?.addEventListener('click', () => UI.showSettingsModal());
 
-    // Welcome screen buttons
-    document.getElementById('btnStartSetup')?.addEventListener('click', () => UI.showSettingsModal());
-    document.getElementById('btnMoreInfo')?.addEventListener('click', () => {
-      UI.showNotification('더 자세한 정보는 설정에서 확인하실 수 있습니다.', 'info', 3000);
+    // URL input and load button
+    document.getElementById('btnLoadUrl')?.addEventListener('click', () => this.loadUrlFromInput());
+    const urlInput = document.getElementById('urlInput');
+    urlInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        this.loadUrlFromInput();
+      }
     });
 
     // Input panel buttons
@@ -451,11 +454,38 @@ const App = {
       }
     }
 
+    // Update URL input field
+    const urlInput = document.getElementById('urlInput');
+    if (urlInput && previewUrl) {
+      urlInput.value = previewUrl;
+    }
+
     if (previewUrl) {
       this.loadPreview(previewUrl);
-    } else {
-      UI.showNotification('설정에서 GitHub Repository를 연결하거나 미리보기 URL을 입력하세요.', 'info', 5000);
     }
+  },
+
+  /**
+   * Load URL from input field
+   */
+  loadUrlFromInput() {
+    const urlInput = document.getElementById('urlInput');
+    const url = urlInput?.value.trim();
+    
+    if (!url) {
+      UI.showNotification('URL을 입력하세요.', 'warning', 3000);
+      return;
+    }
+
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch (e) {
+      UI.showNotification('올바른 URL 형식이 아닙니다.', 'error', 3000);
+      return;
+    }
+
+    this.loadPreview(url);
   },
 
   /**
@@ -464,42 +494,24 @@ const App = {
   loadPreview(url) {
     if (!url) return;
 
-    // Switch from welcome screen to preview screen
-    this.showPreviewMode();
-
     UI.showLoading();
 
     const iframe = document.getElementById('previewFrame');
-    if (iframe) {
+    const previewEmpty = document.getElementById('previewEmpty');
+    
+    if (iframe && previewEmpty) {
+      // Hide empty state, show iframe
+      previewEmpty.style.display = 'none';
+      iframe.style.display = 'block';
+      
       iframe.src = url;
       Storage.PreviewUrl.save(url);
-      UI.updateUrlDisplay(url);
-    }
-  },
-
-  /**
-   * Show preview mode (hide welcome screen)
-   */
-  showPreviewMode() {
-    const welcomeScreen = document.getElementById('welcomeScreen');
-    const previewScreen = document.getElementById('previewScreen');
-    
-    if (welcomeScreen && previewScreen) {
-      welcomeScreen.style.display = 'none';
-      previewScreen.style.display = 'flex';
-    }
-  },
-
-  /**
-   * Show welcome mode (hide preview screen)
-   */
-  showWelcomeMode() {
-    const welcomeScreen = document.getElementById('welcomeScreen');
-    const previewScreen = document.getElementById('previewScreen');
-    
-    if (welcomeScreen && previewScreen) {
-      welcomeScreen.style.display = 'block';
-      previewScreen.style.display = 'none';
+      
+      // Update URL input
+      const urlInput = document.getElementById('urlInput');
+      if (urlInput) {
+        urlInput.value = url;
+      }
     }
   },
 
