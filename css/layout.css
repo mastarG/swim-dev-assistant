@@ -1,0 +1,523 @@
+/**
+ * Layout CSS - Swim Developer Assistant
+ * Layout structures and positioning
+ * 
+ * Based on DESIGN_SYSTEM.md and PAGE_SPECS.md
+ */
+
+/* ============================================
+   Top Navigation
+   ============================================ */
+
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  background: var(--secondary-bg);
+  border-bottom: 1px solid var(--border-light);
+  z-index: 100;
+}
+
+.top-nav__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex: 1;
+}
+
+.top-nav__logo {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.top-nav__url-display {
+  display: flex;
+  align-items: center;
+  background: var(--tertiary-bg);
+  border-radius: 6px;
+  padding: var(--space-2) var(--space-3);
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.url-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-nav__center {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.top-nav__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* ============================================
+   Main Layout (6:4 Split)
+   ============================================ */
+
+.layout-main {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--primary-bg);
+  overflow: hidden;
+}
+
+.layout-main__preview {
+  width: 60%;
+  min-width: 400px;
+  max-width: 75%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--secondary-bg);
+  border-right: 1px solid var(--border-light);
+  transition: width var(--transition-slow);
+}
+
+.layout-main__input {
+  width: 40%;
+  min-width: 300px;
+  max-width: 60%;
+  height: 100%;
+  background: var(--secondary-bg);
+  transition: width var(--transition-slow);
+}
+
+/* ============================================
+   Resize Handle
+   ============================================ */
+
+.resize-handle {
+  width: 4px;
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  transition: background var(--transition-base);
+  flex-shrink: 0;
+}
+
+.resize-handle:hover {
+  background: var(--accent-blue);
+}
+
+.resize-handle::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+}
+
+/* Active resizing */
+body.resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+body.resizing * {
+  cursor: col-resize !important;
+}
+
+/* ============================================
+   Preview Panel
+   ============================================ */
+
+.panel-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-preview__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--tertiary-bg);
+  min-height: 48px;
+}
+
+.panel-preview__content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--primary-bg);
+}
+
+.panel-preview__content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ============================================
+   Input Panel
+   ============================================ */
+
+.panel-input {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-input__chat {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--tertiary-bg);
+}
+
+/* Custom scrollbar */
+.panel-input__chat::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel-input__chat::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-input__chat::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+.panel-input__chat::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+.panel-input__form {
+  padding: var(--space-6);
+  background: var(--secondary-bg);
+  border-top: 1px solid var(--border-light);
+}
+
+.panel-input__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-3);
+  gap: var(--space-3);
+}
+
+.action-buttons-right {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* ============================================
+   History Panel (Slide-in)
+   ============================================ */
+
+.panel-history {
+  position: fixed;
+  right: 0;
+  top: 60px;
+  width: 350px;
+  height: calc(100vh - 60px);
+  background: var(--secondary-bg);
+  border-left: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform var(--transition-slow);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-history.open {
+  transform: translateX(0);
+}
+
+.panel-history__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.panel-history__header h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.panel-history__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.panel-history__search {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.panel-history__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+/* Custom scrollbar for history */
+.panel-history__list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel-history__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-history__list::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+.panel-history__list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+.panel-history__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-light);
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: var(--secondary-bg);
+  border-radius: 12px;
+  padding: var(--modal-padding);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.modal-header h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-body {
+  color: var(--text-primary);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-light);
+}
+
+/* Settings Modal specific */
+.settings-section {
+  margin-bottom: var(--space-8);
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.settings-section h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.settings-field {
+  margin-bottom: var(--space-4);
+}
+
+.settings-field label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.settings-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.settings-field-row label {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   Popup (Prompt)
+   ============================================ */
+
+.popup-prompt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--secondary-bg);
+  border-radius: 16px;
+  padding: var(--space-8);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  z-index: 2000;
+  animation: bounceIn 0.4s ease;
+}
+
+.popup-prompt__header {
+  margin-bottom: var(--space-4);
+}
+
+.popup-prompt__header h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.popup-prompt__textarea {
+  width: 100%;
+  min-height: 200px;
+  margin-bottom: var(--space-4);
+}
+
+.popup-prompt__file {
+  margin-bottom: var(--space-4);
+}
+
+.popup-prompt__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 1440px) {
+  .top-nav {
+    padding: 0 var(--space-4);
+  }
+  
+  .top-nav__left {
+    gap: var(--space-4);
+  }
+  
+  .top-nav__url-display {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .layout-main__preview {
+    width: 55%;
+  }
+  
+  .layout-main__input {
+    width: 45%;
+  }
+  
+  .panel-history {
+    width: 300px;
+  }
+  
+  .panel-input__form {
+    padding: var(--space-4);
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  .top-nav,
+  .panel-history,
+  .resize-handle,
+  .modal-overlay,
+  .notification-container {
+    display: none !important;
+  }
+  
+  .layout-main {
+    position: static;
+    display: block;
+  }
+  
+  .layout-main__preview,
+  .layout-main__input {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+  }
+}
