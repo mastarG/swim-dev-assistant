@@ -93,6 +93,12 @@ const App = {
     document.getElementById('btnHistory')?.addEventListener('click', () => UI.toggleHistoryPanel());
     document.getElementById('btnSettings')?.addEventListener('click', () => UI.showSettingsModal());
 
+    // Welcome screen buttons
+    document.getElementById('btnStartSetup')?.addEventListener('click', () => UI.showSettingsModal());
+    document.getElementById('btnMoreInfo')?.addEventListener('click', () => {
+      UI.showNotification('더 자세한 정보는 설정에서 확인하실 수 있습니다.', 'info', 3000);
+    });
+
     // Input panel buttons
     document.getElementById('btnReset')?.addEventListener('click', () => this.resetInput());
     document.getElementById('btnSend')?.addEventListener('click', () => this.sendMessage());
@@ -458,6 +464,9 @@ const App = {
   loadPreview(url) {
     if (!url) return;
 
+    // Switch from welcome screen to preview screen
+    this.showPreviewMode();
+
     UI.showLoading();
 
     const iframe = document.getElementById('previewFrame');
@@ -465,6 +474,32 @@ const App = {
       iframe.src = url;
       Storage.PreviewUrl.save(url);
       UI.updateUrlDisplay(url);
+    }
+  },
+
+  /**
+   * Show preview mode (hide welcome screen)
+   */
+  showPreviewMode() {
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const previewScreen = document.getElementById('previewScreen');
+    
+    if (welcomeScreen && previewScreen) {
+      welcomeScreen.style.display = 'none';
+      previewScreen.style.display = 'flex';
+    }
+  },
+
+  /**
+   * Show welcome mode (hide preview screen)
+   */
+  showWelcomeMode() {
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const previewScreen = document.getElementById('previewScreen');
+    
+    if (welcomeScreen && previewScreen) {
+      welcomeScreen.style.display = 'block';
+      previewScreen.style.display = 'none';
     }
   },
 

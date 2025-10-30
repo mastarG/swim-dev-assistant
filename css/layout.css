@@ -503,6 +503,163 @@ body.resizing * {
 }
 
 /* ============================================
+   Welcome Screen
+   ============================================ */
+
+.panel-welcome {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: var(--space-8);
+}
+
+.welcome-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.welcome-logo {
+  font-size: 48px;
+  font-weight: var(--font-weight-bold);
+  color: #FFFFFF;
+  margin-bottom: var(--space-3);
+}
+
+.welcome-subtitle {
+  font-size: var(--font-size-lg);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.welcome-nav {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  padding: var(--space-2);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.welcome-nav-btn {
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.welcome-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+
+.welcome-nav-btn.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.welcome-main {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0 0 var(--space-4);
+}
+
+.welcome-description {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 var(--space-6);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.btn-large {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.feature-card {
+  text-align: center;
+  padding: var(--space-6);
+  background: var(--secondary-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  transition: all var(--transition-base);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-blue);
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-3);
+}
+
+.feature-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
+}
+
+.feature-description {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Dark theme adjustments for welcome screen */
+[data-theme="dark"] .welcome-main {
+  background: rgba(28, 28, 30, 0.95);
+}
+
+[data-theme="dark"] .feature-card {
+  background: rgba(44, 44, 46, 0.8);
+}
+
+/* ============================================
    Print Styles
    ============================================ */
 
