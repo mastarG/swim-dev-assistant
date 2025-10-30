@@ -343,7 +343,8 @@ body.resizing * {
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.3s ease;
 }
@@ -353,6 +354,7 @@ body.resizing * {
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-6);
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -364,6 +366,9 @@ body.resizing * {
 
 .modal-body {
   color: var(--text-primary);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -373,6 +378,7 @@ body.resizing * {
   margin-top: var(--space-6);
   padding-top: var(--space-6);
   border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
 
 /* Settings Modal specific */
