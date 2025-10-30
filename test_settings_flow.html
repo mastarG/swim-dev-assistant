@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings Flow Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f7;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      grid-column: 1 / -1;
+    }
+    h2 {
+      margin-top: 0;
+      color: #1d1d1f;
+      font-size: 18px;
+    }
+    .test-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #d2d2d7;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .test-button {
+      background: #007aff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px 5px 5px 0;
+      font-weight: 500;
+    }
+    .test-button:hover {
+      background: #0051d5;
+    }
+    .test-button.secondary {
+      background: #8e8e93;
+    }
+    .test-button.secondary:hover {
+      background: #636366;
+    }
+    .test-button.danger {
+      background: #ff3b30;
+    }
+    .test-button.danger:hover {
+      background: #d70015;
+    }
+    .log-area {
+      background: #1d1d1f;
+      color: #00ff00;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success { color: #34c759; }
+    .error { color: #ff3b30; }
+    .warning { color: #ff9500; }
+    .info { color: #00d4ff; }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px 0;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Settings Persistence Flow Test</h1>
+  
+  <div class="container">
+    <div class="panel">
+      <h2>1. Simulate Settings Input</h2>
+      <label for="testGeminiKey">Gemini API Key</label>
+      <input type="text" class="test-input" id="testGeminiKey" placeholder="AIzaSy..." value="AIzaSyTestKey123ABC">
+      
+      <label for="testGithubUrl">GitHub Repository URL</label>
+      <input type="text" class="test-input" id="testGithubUrl" placeholder="https://github.com/..." value="https://github.com/mastarG/swim-dev-assistant">
+      
+      <label for="testGithubToken">GitHub Token</label>
+      <input type="text" class="test-input" id="testGithubToken" placeholder="ghp_..." value="ghp_TestToken456DEF">
+      
+      <div class="button-row">
+        <button class="test-button" onclick="testSave()">💾 Save Settings</button>
+        <button class="test-button secondary" onclick="testLoad()">📥 Load Settings</button>
+        <button class="test-button danger" onclick="testClear()">🗑️ Clear All</button>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <h2>2. Flow Simulation</h2>
+      <div class="button-row">
+        <button class="test-button" onclick="simulateFullFlow()">▶️ Full Flow Test</button>
+        <button class="test-button secondary" onclick="simulateModalReopening()">🔄 Modal Reopen Test</button>
+        <button class="test-button secondary" onclick="inspectLocalStorage()">🔍 Inspect Storage</button>
+        <button class="test-button secondary" onclick="clearLog()">🧹 Clear Log</button>
+      </div>
+      
+      <h3 style="margin-top: 20px; font-size: 14px;">Quick Tests:</h3>
+      <div class="button-row">
+        <button class="test-button secondary" style="font-size: 12px;" onclick="testEncryption()">🔐 Encryption</button>
+        <button class="test-button secondary" style="font-size: 12px;" onclick="testBasicStorage()">💾 Basic Storage</button>
+        <button class="test-button secondary" style="font-size: 12px;" onclick="testStorageModule()">📦 Module Test</button>
+      </div>
+    </div>
+    
+    <div class="panel full-width">
+      <h2>3. Test Results & Console Log</h2>
+      <div id="logArea" class="log-area">Waiting for tests...\n</div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script>
+    const logArea = document.getElementById('logArea');
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const className = type;
+      const icon = {
+        'success': '✅',
+        'error': '❌',
+        'warning': '⚠️',
+        'info': 'ℹ️'
+      }[type] || 'ℹ️';
+      
+      const line = `<span class="${className}">[${timestamp}] ${icon} ${message}</span>\n`;
+      logArea.innerHTML += line;
+      logArea.scrollTop = logArea.scrollHeight;
+      
+      // Also log to console
+      console.log(`[${timestamp}] ${message}`);
+    }
+    
+    function clearLog() {
+      logArea.innerHTML = 'Log cleared.\n';
+    }
+    
+    function testSave() {
+      log('=== Starting Save Test ===', 'info');
+      
+      const geminiKey = document.getElementById('testGeminiKey').value;
+      const githubUrl = document.getElementById('testGithubUrl').value;
+      const githubToken = document.getElementById('testGithubToken').value;
+      
+      log(`Input - Gemini Key: ${geminiKey ? '***' + geminiKey.slice(-4) : '(empty)'}`, 'info');
+      log(`Input - GitHub URL: ${githubUrl}`, 'info');
+      log(`Input - GitHub Token: ${githubToken ? '***' + githubToken.slice(-4) : '(empty)'}`, 'info');
+      
+      try {
+        const result1 = Storage.Settings.saveGeminiApiKey(geminiKey);
+        const result2 = Storage.Settings.saveGithubRepoUrl(githubUrl);
+        const result3 = Storage.Settings.saveGithubToken(githubToken);
+        
+        log(`Save Gemini Key: ${result1 ? 'SUCCESS' : 'FAILED'}`, result1 ? 'success' : 'error');
+        log(`Save GitHub URL: ${result2 ? 'SUCCESS' : 'FAILED'}`, result2 ? 'success' : 'error');
+        log(`Save GitHub Token: ${result3 ? 'SUCCESS' : 'FAILED'}`, result3 ? 'success' : 'error');
+        
+        // Immediate verification
+        const loaded = Storage.Settings.loadAll();
+        log('Immediate Load Verification:', 'info');
+        log(`  Gemini: ${loaded.geminiApiKey ? '***' + loaded.geminiApiKey.slice(-4) : '(empty)'}`, 
+            loaded.geminiApiKey === geminiKey ? 'success' : 'error');
+        log(`  GitHub URL: ${loaded.githubRepoUrl}`, 
+            loaded.githubRepoUrl === githubUrl ? 'success' : 'error');
+        log(`  GitHub Token: ${loaded.githubToken ? '***' + loaded.githubToken.slice(-4) : '(empty)'}`, 
+            loaded.githubToken === githubToken ? 'success' : 'error');
+        
+        if (result1 && result2 && result3) {
+          log('=== Save Test PASSED ===', 'success');
+        } else {
+          log('=== Save Test FAILED ===', 'error');
+        }
+      } catch (error) {
+        log(`ERROR: ${error.message}`, 'error');
+      }
+    }
+    
+    function testLoad() {
+      log('=== Starting Load Test ===', 'info');
+      
+      try {
+        const settings = Storage.Settings.loadAll();
+        
+        log('Loaded Settings:', 'info');
+        log(`  Gemini Key: ${settings.geminiApiKey ? '***' + settings.geminiApiKey.slice(-4) : '(empty)'}`, 'info');
+        log(`  GitHub URL: ${settings.githubRepoUrl || '(empty)'}`, 'info');
+        log(`  GitHub Token: ${settings.githubToken ? '***' + settings.githubToken.slice(-4) : '(empty)'}`, 'info');
+        log(`  Collab URL: ${settings.collabGithubRepoUrl || '(empty)'}`, 'info');
+        log(`  Collab Token: ${settings.collabGithubToken ? '***' + settings.collabGithubToken.slice(-4) : '(empty)'}`, 'info');
+        log(`  Theme: ${settings.theme}`, 'info');
+        log(`  Font Size: ${settings.fontSize}`, 'info');
+        
+        // Update form fields
+        if (settings.geminiApiKey) {
+          document.getElementById('testGeminiKey').value = settings.geminiApiKey;
+        }
+        if (settings.githubRepoUrl) {
+          document.getElementById('testGithubUrl').value = settings.githubRepoUrl;
+        }
+        if (settings.githubToken) {
+          document.getElementById('testGithubToken').value = settings.githubToken;
+        }
+        
+        log('=== Load Test COMPLETED ===', 'success');
+      } catch (error) {
+        log(`ERROR: ${error.message}`, 'error');
+      }
+    }
+    
+    function testClear() {
+      if (!confirm('Clear all stored settings?')) return;
+      
+      log('=== Clearing All Settings ===', 'warning');
+      
+      try {
+        const keys = Object.keys(localStorage);
+        const swimKeys = keys.filter(k => 
+          k === 'gemini_api_key' || 
+          k === 'github_repo_url' || 
+          k === 'github_token' ||
+          k === 'collab_github_repo_url' ||
+          k === 'collab_github_token' ||
+          k === 'theme' ||
+          k === 'font_size' ||
+          k === 'prompt' ||
+          k === 'prompt_file'
+        );
+        
+        swimKeys.forEach(key => {
+          localStorage.removeItem(key);
+          log(`Removed: ${key}`, 'info');
+        });
+        
+        document.getElementById('testGeminiKey').value = '';
+        document.getElementById('testGithubUrl').value = '';
+        document.getElementById('testGithubToken').value = '';
+        
+        log(`=== Cleared ${swimKeys.length} items ===`, 'success');
+      } catch (error) {
+        log(`ERROR: ${error.message}`, 'error');
+      }
+    }
+    
+    function simulateFullFlow() {
+      log('=== Simulating Full User Flow ===', 'info');
+      log('Step 1: User opens settings modal', 'info');
+      
+      // Step 1: Load (simulate opening modal)
+      setTimeout(() => {
+        const beforeSettings = Storage.Settings.loadAll();
+        log(`Before - Gemini: ${beforeSettings.geminiApiKey ? '***' + beforeSettings.geminiApiKey.slice(-4) : '(empty)'}`, 'info');
+        
+        log('Step 2: User enters data', 'info');
+        
+        // Step 2: Simulate user input
+        setTimeout(() => {
+          const testKey = 'FlowTestKey' + Date.now();
+          const testUrl = 'https://github.com/test/flow-' + Date.now();
+          
+          log(`Entering - Gemini: ***${testKey.slice(-4)}`, 'info');
+          log(`Entering - GitHub: ${testUrl}`, 'info');
+          
+          log('Step 3: User clicks Save', 'info');
+          
+          // Step 3: Save
+          setTimeout(() => {
+            Storage.Settings.saveGeminiApiKey(testKey);
+            Storage.Settings.saveGithubRepoUrl(testUrl);
+            log('Saved!', 'success');
+            
+            log('Step 4: User closes modal', 'info');
+            
+            // Step 4: Close (just a delay)
+            setTimeout(() => {
+              log('Modal closed', 'info');
+              
+              log('Step 5: User reopens modal', 'info');
+              
+              // Step 5: Reopen and load
+              setTimeout(() => {
+                const afterSettings = Storage.Settings.loadAll();
+                log(`After reopen - Gemini: ${afterSettings.geminiApiKey ? '***' + afterSettings.geminiApiKey.slice(-4) : '(empty)'}`, 'info');
+                log(`After reopen - GitHub: ${afterSettings.githubRepoUrl}`, 'info');
+                
+                const keyMatch = afterSettings.geminiApiKey === testKey;
+                const urlMatch = afterSettings.githubRepoUrl === testUrl;
+                
+                if (keyMatch && urlMatch) {
+                  log('=== FLOW TEST PASSED ===', 'success');
+                  log('Settings persisted correctly!', 'success');
+                } else {
+                  log('=== FLOW TEST FAILED ===', 'error');
+                  log('Settings did NOT persist!', 'error');
+                  if (!keyMatch) log('  Gemini Key mismatch', 'error');
+                  if (!urlMatch) log('  GitHub URL mismatch', 'error');
+                }
+              }, 500);
+            }, 500);
+          }, 500);
+        }, 500);
+      }, 500);
+    }
+    
+    function simulateModalReopening() {
+      log('=== Simulating Modal Reopen (5 times) ===', 'info');
+      
+      const testData = {
+        key: 'ReopenTest' + Date.now(),
+        url: 'https://github.com/test/reopen-' + Date.now()
+      };
+      
+      // Save once
+      Storage.Settings.saveGeminiApiKey(testData.key);
+      Storage.Settings.saveGithubRepoUrl(testData.url);
+      log(`Saved initial data: ***${testData.key.slice(-4)}`, 'success');
+      
+      let iteration = 0;
+      const maxIterations = 5;
+      
+      const reopenInterval = setInterval(() => {
+        iteration++;
+        log(`--- Reopen #${iteration} ---`, 'info');
+        
+        // Simulate modal opening and loading
+        const loaded = Storage.Settings.loadAll();
+        log(`Loaded Gemini: ${loaded.geminiApiKey ? '***' + loaded.geminiApiKey.slice(-4) : '(empty)'}`, 'info');
+        log(`Loaded GitHub: ${loaded.githubRepoUrl}`, 'info');
+        
+        const keyMatch = loaded.geminiApiKey === testData.key;
+        const urlMatch = loaded.githubRepoUrl === testData.url;
+        
+        if (keyMatch && urlMatch) {
+          log(`Reopen #${iteration}: PASS ✅`, 'success');
+        } else {
+          log(`Reopen #${iteration}: FAIL ❌`, 'error');
+          clearInterval(reopenInterval);
+          log('=== PERSISTENCE ISSUE DETECTED ===', 'error');
+        }
+        
+        if (iteration >= maxIterations) {
+          clearInterval(reopenInterval);
+          log('=== All Reopens Successful ===', 'success');
+        }
+      }, 1000);
+    }
+    
+    function inspectLocalStorage() {
+      log('=== LocalStorage Inspection ===', 'info');
+      
+      const allKeys = Object.keys(localStorage);
+      log(`Total keys in localStorage: ${allKeys.length}`, 'info');
+      
+      const relevantKeys = allKeys.filter(k => 
+        k.includes('gemini') || 
+        k.includes('github') || 
+        k.includes('theme') ||
+        k.includes('font') ||
+        k.includes('prompt') ||
+        k.includes('swim') ||
+        k.includes('chat') ||
+        k.includes('history')
+      );
+      
+      log(`Relevant keys: ${relevantKeys.length}`, 'info');
+      
+      if (relevantKeys.length === 0) {
+        log('No swim-dev-assistant data found!', 'warning');
+      } else {
+        relevantKeys.forEach(key => {
+          const value = localStorage.getItem(key);
+          const display = value && value.length > 60 ? value.substring(0, 60) + '...' : value;
+          log(`  ${key}: ${display}`, 'info');
+        });
+      }
+      
+      // Calculate storage usage
+      let totalSize = 0;
+      allKeys.forEach(key => {
+        const item = localStorage.getItem(key);
+        totalSize += key.length + (item ? item.length : 0);
+      });
+      
+      log(`Storage usage: ${(totalSize / 1024).toFixed(2)} KB`, 'info');
+      log(`Estimated limit: ~5-10 MB`, 'info');
+    }
+    
+    function testEncryption() {
+      log('=== Encryption Test ===', 'info');
+      
+      const testStr = 'AIzaSyTestEncryption123';
+      log(`Original: ${testStr}`, 'info');
+      
+      try {
+        const encrypted = btoa(testStr);
+        log(`Encrypted: ${encrypted}`, 'info');
+        
+        const decrypted = atob(encrypted);
+        log(`Decrypted: ${decrypted}`, 'info');
+        
+        if (decrypted === testStr) {
+          log('Encryption/Decryption: PASS ✅', 'success');
+        } else {
+          log('Encryption/Decryption: FAIL ❌', 'error');
+        }
+      } catch (error) {
+        log(`Encryption Error: ${error.message}`, 'error');
+      }
+    }
+    
+    function testBasicStorage() {
+      log('=== Basic Storage Test ===', 'info');
+      
+      try {
+        localStorage.setItem('test_basic', 'test_value_123');
+        const loaded = localStorage.getItem('test_basic');
+        
+        log(`Saved: test_value_123`, 'info');
+        log(`Loaded: ${loaded}`, 'info');
+        
+        if (loaded === 'test_value_123') {
+          log('Basic Storage: PASS ✅', 'success');
+        } else {
+          log('Basic Storage: FAIL ❌', 'error');
+        }
+        
+        localStorage.removeItem('test_basic');
+      } catch (error) {
+        log(`Storage Error: ${error.message}`, 'error');
+      }
+    }
+    
+    function testStorageModule() {
+      log('=== Storage Module Test ===', 'info');
+      
+      if (typeof Storage === 'undefined') {
+        log('Storage module NOT loaded!', 'error');
+        return;
+      }
+      
+      log('Storage module loaded ✅', 'success');
+      log(`Settings methods: ${Object.keys(Storage.Settings).join(', ')}`, 'info');
+      
+      // Test save/load
+      const testKey = 'ModuleTest' + Date.now();
+      const saved = Storage.Settings.saveGeminiApiKey(testKey);
+      const loaded = Storage.Settings.loadGeminiApiKey();
+      
+      log(`Save result: ${saved}`, saved ? 'success' : 'error');
+      log(`Load result: ${loaded ? '***' + loaded.slice(-4) : '(empty)'}`, 'info');
+      
+      if (saved && loaded === testKey) {
+        log('Module Test: PASS ✅', 'success');
+      } else {
+        log('Module Test: FAIL ❌', 'error');
+      }
+    }
+    
+    // Auto-run basic checks on load
+    window.addEventListener('DOMContentLoaded', () => {
+      log('🚀 Test page loaded', 'success');
+      log('Storage module: ' + (typeof Storage !== 'undefined' ? 'LOADED ✅' : 'NOT LOADED ❌'), 
+          typeof Storage !== 'undefined' ? 'success' : 'error');
+      log('localStorage: ' + (typeof localStorage !== 'undefined' ? 'AVAILABLE ✅' : 'NOT AVAILABLE ❌'),
+          typeof localStorage !== 'undefined' ? 'success' : 'error');
+      log('Ready for testing!', 'info');
+      log('---', 'info');
+    });
+  </script>
+</body>
+</html>
