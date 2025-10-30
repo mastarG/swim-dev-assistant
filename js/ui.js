@@ -461,13 +461,33 @@ const UI = {
     const theme = document.getElementById('darkMode').checked ? 'dark' : 'light';
     const fontSize = document.querySelector('.font-size-btn.active').getAttribute('data-size');
 
-    Storage.Settings.saveGeminiApiKey(geminiApiKey);
-    Storage.Settings.saveGithubRepoUrl(githubRepoUrl);
-    Storage.Settings.saveGithubToken(githubToken);
-    Storage.Settings.saveCollabGithubRepoUrl(collabGithubRepoUrl);
-    Storage.Settings.saveCollabGithubToken(collabGithubToken);
-    Storage.Settings.saveTheme(theme);
-    Storage.Settings.saveFontSize(fontSize);
+    console.log('💾 Saving settings...', {
+      geminiApiKey: geminiApiKey ? '***' + geminiApiKey.slice(-4) : 'empty',
+      githubRepoUrl,
+      theme,
+      fontSize
+    });
+
+    const saveResults = {
+      gemini: Storage.Settings.saveGeminiApiKey(geminiApiKey),
+      githubUrl: Storage.Settings.saveGithubRepoUrl(githubRepoUrl),
+      githubToken: Storage.Settings.saveGithubToken(githubToken),
+      collabUrl: Storage.Settings.saveCollabGithubRepoUrl(collabGithubRepoUrl),
+      collabToken: Storage.Settings.saveCollabGithubToken(collabGithubToken),
+      theme: Storage.Settings.saveTheme(theme),
+      fontSize: Storage.Settings.saveFontSize(fontSize)
+    };
+
+    console.log('💾 Save results:', saveResults);
+
+    // Verify saved values
+    const loaded = Storage.Settings.loadAll();
+    console.log('✅ Loaded after save:', {
+      geminiApiKey: loaded.geminiApiKey ? '***' + loaded.geminiApiKey.slice(-4) : 'empty',
+      githubRepoUrl: loaded.githubRepoUrl,
+      theme: loaded.theme,
+      fontSize: loaded.fontSize
+    });
 
     this.showNotification('설정이 저장되었습니다.', 'success');
     this.closeModal();

@@ -26,7 +26,8 @@ const API = {
         throw new Error('Gemini API 키가 설정되지 않았습니다.');
       }
 
-      const url = `${this.BASE_URL}/models/${this.MODEL}:generateContent`;
+      // Use query parameter for API key instead of header
+      const url = `${this.BASE_URL}/models/${this.MODEL}:generateContent?key=${apiKey}`;
       
       const requestBody = {
         contents: [{
@@ -40,12 +41,16 @@ const API = {
         }
       };
 
+      console.log('🤖 Calling Gemini API:', {
+        url: url.replace(/key=.*/,  'key=***'),
+        model: this.MODEL
+      });
+
       try {
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(requestBody)
         });
