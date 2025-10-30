@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light" data-font-size="small">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI 개발 커뮤니케이션 헬퍼 웹 애플리케이션">
+  <title>Swim Developer Assistant</title>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+</head>
+<body>
+  
+  <!-- Top Navigation Bar -->
+  <nav class="top-nav" data-component="navigation" data-type="primary">
+    <div class="top-nav__left">
+      <h1 class="top-nav__logo" data-component="logo">Swim Developer</h1>
+      <div class="top-nav__url-display" data-component="url-display">
+        <span id="currentUrl" class="url-text">-</span>
+      </div>
+    </div>
+    
+    <div class="top-nav__center">
+      <button 
+        class="btn-click-mode active" 
+        id="btnClickMode" 
+        data-component="button"
+        data-variant="click-mode"
+        data-action="toggle-click-mode"
+        aria-label="클릭모드 활성화"
+        aria-pressed="true">
+        <span class="icon">👆</span>
+        <span class="btn-text">클릭모드</span>
+      </button>
+      <button 
+        class="btn-screen-mode" 
+        id="btnScreenMode"
+        data-component="button"
+        data-variant="screen-mode"
+        data-action="toggle-screen-mode"
+        aria-label="스크린모드 활성화"
+        aria-pressed="false">
+        <span class="icon">📐</span>
+        <span class="btn-text">스크린모드</span>
+      </button>
+      <button 
+        class="btn-refresh" 
+        id="btnRefresh"
+        data-component="button"
+        data-variant="refresh"
+        data-action="refresh-preview"
+        aria-label="새로고침">
+        <span class="icon">🔄</span>
+      </button>
+    </div>
+    
+    <div class="top-nav__right">
+      <button 
+        class="btn-prompt" 
+        id="btnPrompt"
+        data-component="button"
+        data-variant="prompt"
+        data-action="open-prompt"
+        aria-label="프롬프트 설정">
+        <span class="icon">✨</span>
+      </button>
+      <button 
+        class="btn-ghost" 
+        id="btnHistory"
+        data-component="button"
+        data-variant="ghost"
+        data-action="toggle-history"
+        aria-label="히스토리">
+        <span class="icon">🕒</span>
+        <span class="btn-text">히스토리</span>
+      </button>
+      <button 
+        class="btn-ghost" 
+        id="btnSettings"
+        data-component="button"
+        data-variant="ghost"
+        data-action="open-settings"
+        aria-label="설정">
+        <span class="icon">⚙️</span>
+        <span class="btn-text">설정</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Layout Container -->
+  <div class="layout-main" data-component="layout" data-type="main">
+    
+    <!-- Preview Panel (Left Side) -->
+    <div class="layout-main__preview" id="previewPanel" data-component="panel" data-type="preview">
+      <div class="panel-preview">
+        <!-- Preview Toolbar -->
+        <div class="panel-preview__toolbar">
+          <div class="connection-status">
+            <span class="status-indicator" id="geminiStatus" data-status="disconnected">●</span>
+            <span class="status-label">Gemini</span>
+            <span class="status-indicator" id="githubStatus" data-status="disconnected">●</span>
+            <span class="status-label">GitHub</span>
+          </div>
+        </div>
+        
+        <!-- Preview Content (iframe) -->
+        <div class="panel-preview__content">
+          <iframe 
+            id="previewFrame" 
+            data-component="iframe"
+            src="about:blank"
+            title="미리보기 프레임"
+            sandbox="allow-same-origin allow-scripts allow-forms"
+          ></iframe>
+          
+          <!-- Selection Box (Screen Mode) -->
+          <div 
+            class="selection-box" 
+            id="selectionBox" 
+            data-component="selection-box"
+            style="display: none;">
+          </div>
+          
+          <!-- Loading Overlay -->
+          <div class="loading-overlay" id="previewLoading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">로딩 중...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resize Handle -->
+    <div 
+      class="resize-handle" 
+      id="resizeHandle"
+      data-component="resize-handle"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="패널 크기 조절">
+    </div>
+
+    <!-- Input Panel (Right Side) -->
+    <div class="layout-main__input" id="inputPanel" data-component="panel" data-type="input">
+      <div class="panel-input">
+        
+        <!-- Chat Area (Top) -->
+        <div class="panel-input__chat" id="chatArea" data-component="chat-area">
+          <div class="chat-messages" id="chatMessages">
+            <!-- Welcome message -->
+            <div class="chat-message" data-message-type="system">
+              <div class="chat-message__avatar">S</div>
+              <div class="chat-message__content">
+                <div class="chat-message__header">
+                  <span class="chat-message__name">Swim</span>
+                  <span class="chat-message__time" id="welcomeTime"></span>
+                </div>
+                <div class="chat-message__text">
+                  안녕하세요! Swim Developer Assistant입니다.<br>
+                  먼저 설정에서 Gemini API 키와 GitHub Repository를 연결해주세요.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Input Form (Bottom) -->
+        <div class="panel-input__form" data-component="input-form">
+          <!-- Location Tags (Selected Elements) -->
+          <div class="location-tags" id="locationTags" style="display: none;">
+            <!-- Dynamic location tags -->
+          </div>
+          
+          <!-- Input Textarea -->
+          <textarea 
+            class="textarea" 
+            id="messageInput"
+            data-component="textarea"
+            data-type="message"
+            placeholder="요구사항을 입력하세요... (클릭모드로 요소를 선택하면 위치가 자동으로 입력됩니다)"
+            rows="4"
+          ></textarea>
+          
+          <!-- Action Buttons -->
+          <div class="panel-input__actions">
+            <button 
+              class="btn-secondary btn-sm" 
+              id="btnAttach"
+              data-component="button"
+              data-variant="attach"
+              data-action="attach-file"
+              aria-label="파일 첨부">
+              <span class="icon">📎</span>
+              <span class="btn-text">첨부</span>
+            </button>
+            
+            <div class="action-buttons-right">
+              <button 
+                class="btn-secondary" 
+                id="btnReset"
+                data-component="button"
+                data-variant="reset"
+                data-action="reset-input"
+                aria-label="초기화">
+                초기화
+              </button>
+              <button 
+                class="btn-primary" 
+                id="btnSend"
+                data-component="button"
+                data-variant="send"
+                data-action="send-message"
+                aria-label="전송"
+                disabled>
+                <span class="icon">✨</span>
+                <span class="btn-text">변환</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Connection Status Footer -->
+          <div class="connection-footer">
+            <div class="connection-item">
+              <span class="status-dot" id="geminiDot" data-status="disconnected">●</span>
+              <span class="connection-label">Gemini Pro 2.0</span>
+            </div>
+            <div class="connection-item">
+              <span class="status-dot" id="githubDot" data-status="disconnected">●</span>
+              <span class="connection-label" id="githubRepoLabel">저장소: -</span>
+            </div>
+            <div class="connection-item">
+              <span class="status-dot" id="collabDot" data-status="disconnected">●</span>
+              <span class="connection-label" id="collabRepoLabel">협업: -</span>
+            </div>
+            <button class="btn-copy btn-sm" id="btnCopy" style="display: none;">
+              <span class="icon">📋</span>
+              <span class="btn-text">복사</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Panel (Slide-in from right) -->
+  <aside 
+    class="panel-history" 
+    id="historyPanel"
+    data-component="panel"
+    data-type="history"
+    aria-hidden="true">
+    <div class="panel-history__header">
+      <h2>히스토리</h2>
+      <button 
+        class="btn-close" 
+        id="btnCloseHistory"
+        data-component="button"
+        data-action="close-history"
+        aria-label="히스토리 패널 닫기">
+        ✕
+      </button>
+    </div>
+    
+    <!-- Filters -->
+    <div class="panel-history__filters">
+      <button class="filter-btn active" data-category="all">전체</button>
+      <button class="filter-btn" data-category="ui">UI</button>
+      <button class="filter-btn" data-category="function">기능</button>
+      <button class="filter-btn" data-category="style">스타일</button>
+      <button class="filter-btn" data-category="bug">버그</button>
+      <button class="filter-btn" data-category="other">기타</button>
+    </div>
+    
+    <!-- Search -->
+    <div class="panel-history__search">
+      <input 
+        type="text" 
+        class="input-text" 
+        id="historySearch"
+        placeholder="검색..."
+        aria-label="히스토리 검색">
+    </div>
+    
+    <!-- History List -->
+    <div class="panel-history__list" id="historyList">
+      <!-- Dynamic history items -->
+      <div class="empty-state">
+        <p>아직 히스토리가 없습니다.</p>
+        <p class="empty-state__hint">채팅창에서 [복사] 버튼을 클릭하면 자동으로 기록됩니다.</p>
+      </div>
+    </div>
+    
+    <!-- Export Button -->
+    <div class="panel-history__footer">
+      <button class="btn-secondary btn-block" id="btnExportHistory">
+        <span class="icon">📥</span>
+        <span class="btn-text">Markdown 내보내기</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Modal Container (Dynamic modals render here) -->
+  <div id="modalContainer"></div>
+
+  <!-- Popup Container (Dynamic popups render here) -->
+  <div id="popupContainer"></div>
+
+  <!-- Notification Container -->
+  <div class="notification-container" id="notificationContainer"></div>
+
+  <!-- JavaScript Files -->
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+  
+  <!-- Initialize App -->
+  <script>
+    // Set welcome time
+    document.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('ko-KR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      document.getElementById('welcomeTime').textContent = timeString;
+      
+      // Initialize app
+      if (typeof App !== 'undefined') {
+        App.init();
+      }
+    });
+  </script>
+</body>
+</html>

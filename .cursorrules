@@ -1,0 +1,362 @@
+# 스윔 개발자 (Swim Developer Assistant) - AI 개발 규칙
+
+## 프로젝트 개요
+- **프로젝트명**: 스윔 개발자 (Swim Developer Assistant)
+- **타입**: AI 개발 커뮤니케이션 헬퍼 웹 애플리케이션
+- **기술 스택**: Vanilla JavaScript, CSS3, HTML5
+- **디자인**: Apple (macOS) 스타일
+
+## 필수 준수 사항
+
+### 📄 명세서 우선 (MANDATORY)
+1. **PRD.md**: 모든 기능 요구사항은 이 문서를 절대 기준으로 함
+2. **DESIGN_SYSTEM.md**: 모든 UI/UX는 이 디자인 시스템을 정확히 따름
+3. **PAGE_SPECS.md**: 모든 컴포넌트와 인터랙션은 이 명세를 따름
+4. **API_SPEC.md**: 모든 API 호출은 이 명세대로 구현
+5. **DATABASE_SCHEMA.md**: 모든 데이터 구조는 이 스키마를 따름
+
+### 🚫 절대 금지 사항
+- 명세서에 없는 기능 임의 추가 금지
+- 디자인 시스템 벗어난 스타일 사용 금지
+- 페이지 명세와 다른 UI 구현 금지
+- 외부 라이브러리 사용 금지 (Vanilla JS만 사용)
+- jQuery, React, Vue 등 프레임워크 사용 금지
+
+## 코딩 규칙
+
+### HTML
+```html
+<!-- data-* 속성 필수 -->
+<button 
+  data-component="button" 
+  data-variant="primary" 
+  data-action="click-mode"
+  class="btn-click-mode">
+  클릭모드
+</button>
+
+<!-- 시맨틱 태그 사용 -->
+<nav>, <header>, <main>, <section>, <article>, <aside>, <footer>
+```
+
+### CSS
+```css
+/* CSS 변수 사용 (DESIGN_SYSTEM.md 참조) */
+.btn-primary {
+  background: var(--accent-blue);
+  color: #FFFFFF;
+  padding: var(--btn-padding-md);
+  border-radius: 8px;
+  transition: all var(--transition-base);
+}
+
+/* BEM 방법론 사용 */
+.panel-preview__header { }
+.panel-preview__content { }
+.panel-preview__footer { }
+```
+
+### JavaScript
+```javascript
+// ES6+ 모던 문법 사용
+const elements = document.querySelectorAll('[data-component]');
+
+// 모듈 패턴 사용
+const App = {
+  init() { },
+  handleClick() { },
+  render() { }
+};
+
+// async/await 사용
+async function fetchFromGemini(text) {
+  try {
+    const response = await fetch(API_URL, options);
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// 명확한 주석
+/**
+ * Gemini API를 호출하여 텍스트 변환
+ * @param {string} userInput - 사용자 입력 텍스트
+ * @param {string} location - 요소 위치 정보
+ * @returns {Promise<string>} - 변환된 텍스트
+ */
+```
+
+## 파일 구조 규칙
+
+### CSS 파일
+- `design-system.css`: CSS 변수, 테마, 타이포그래피
+- `components.css`: 버튼, 입력 필드, 모달 등 컴포넌트
+- `layout.css`: 레이아웃, 그리드, 플렉스
+
+### JavaScript 파일
+- `app.js`: 메인 앱 초기화 및 이벤트 핸들러
+- `api.js`: Gemini API, GitHub API 연동
+- `storage.js`: LocalStorage CRUD 및 암호화
+- `ui.js`: UI 컴포넌트 렌더링 및 업데이트
+
+## 핵심 기능 구현 규칙
+
+### 1. 클릭모드
+```javascript
+// 0.7초 이상 누르면 스크린모드로 전환
+let pressTimer = null;
+element.addEventListener('mousedown', (e) => {
+  pressTimer = setTimeout(() => {
+    switchToScreenMode();
+  }, 700);
+});
+
+element.addEventListener('mouseup', (e) => {
+  clearTimeout(pressTimer);
+  if (!isScreenMode) {
+    handleClick(e);
+  }
+});
+```
+
+### 2. 스크린모드
+```javascript
+// 드래그로 영역 선택
+let selectionBox = null;
+document.addEventListener('mousemove', (e) => {
+  if (isSelecting) {
+    updateSelectionBox(e.clientX, e.clientY);
+  }
+});
+```
+
+### 3. Gemini API
+```javascript
+// API_SPEC.md의 명세 정확히 따르기
+const response = await fetch(
+  'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp:generateContent',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: `${prompt}\n\n${userInput}\n\n위치: ${location}`
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048
+      }
+    })
+  }
+);
+```
+
+### 4. LocalStorage 암호화
+```javascript
+// AES 암호화 사용 (Web Crypto API)
+async function encryptData(data) {
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data);
+  const key = await crypto.subtle.generateKey(
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt', 'decrypt']
+  );
+  // ... 암호화 로직
+}
+```
+
+## 디자인 시스템 준수
+
+### 색상
+```css
+/* DESIGN_SYSTEM.md의 색상 변수 사용 */
+--primary-bg: #F5F5F7;
+--accent-blue: #007AFF;
+--text-primary: #1D1D1F;
+```
+
+### 타이포그래피
+```css
+/* 시스템 폰트 사용 */
+font-family: var(--font-system);
+font-size: var(--font-size-base);
+font-weight: var(--font-weight-medium);
+```
+
+### 간격
+```css
+/* 8px 기반 스페이싱 */
+padding: var(--space-4);  /* 16px */
+margin-bottom: var(--space-6);  /* 24px */
+```
+
+### 애니메이션
+```css
+/* 부드러운 트랜지션 */
+transition: all var(--transition-base);  /* 0.2s ease */
+```
+
+## 에러 처리
+
+### API 에러
+```javascript
+try {
+  const data = await fetchAPI();
+} catch (error) {
+  showNotification('API 오류가 발생했습니다.', 'error');
+  console.error('API Error:', error);
+}
+```
+
+### 사용자 피드백
+```javascript
+// 로딩 표시
+showLoading();
+
+// 성공 메시지
+showNotification('저장되었습니다.', 'success');
+
+// 경고 메시지
+showNotification('API 키를 입력하세요.', 'warning');
+
+// 에러 메시지
+showNotification('연결에 실패했습니다.', 'error');
+```
+
+## 접근성
+
+### 키보드 네비게이션
+```javascript
+// Tab 키로 이동 가능
+element.setAttribute('tabindex', '0');
+
+// Enter 키로 실행
+element.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    handleAction();
+  }
+});
+
+// Escape 키로 모달 닫기
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+});
+```
+
+### ARIA 속성
+```html
+<button 
+  aria-label="클릭모드 활성화" 
+  aria-pressed="false"
+  role="button">
+</button>
+```
+
+## 성능 최적화
+
+### 이벤트 위임
+```javascript
+// 각 요소에 이벤트 리스너 추가하지 말고 위임 사용
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-component]');
+  if (target) {
+    handleComponentClick(target);
+  }
+});
+```
+
+### 디바운스
+```javascript
+// 검색 입력 등에 디바운스 적용
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+searchInput.addEventListener('input', debounce(handleSearch, 300));
+```
+
+## 테스트 체크리스트
+
+### 기능 테스트
+- [ ] 클릭모드로 요소 선택 가능
+- [ ] 0.7초 롱프레스로 스크린모드 전환
+- [ ] Gemini API 정상 연동
+- [ ] GitHub API 정상 연동
+- [ ] 히스토리 자동 기록
+- [ ] 설정 저장/불러오기
+- [ ] 테마 전환 (Light/Dark)
+- [ ] 폰트 크기 조절 (3단계)
+
+### UI/UX 테스트
+- [ ] 6:4 분할 레이아웃
+- [ ] 드래그로 패널 크기 조절
+- [ ] 모든 버튼 호버 효과
+- [ ] 로딩 스피너 표시
+- [ ] 에러 메시지 표시
+- [ ] 성공 알림 표시
+
+### 접근성 테스트
+- [ ] Tab 키로 모든 요소 이동 가능
+- [ ] Enter 키로 버튼 클릭 가능
+- [ ] Escape 키로 모달 닫기 가능
+- [ ] 포커스 표시 명확
+
+### 브라우저 테스트
+- [ ] Chrome 최신 버전
+- [ ] Edge 최신 버전
+- [ ] Firefox (선택)
+- [ ] Safari (선택)
+
+## 커밋 메시지 규칙
+
+```
+feat: 새로운 기능 추가
+fix: 버그 수정
+style: 디자인 변경
+refactor: 코드 리팩토링
+docs: 문서 수정
+test: 테스트 추가/수정
+chore: 기타 작업
+
+예시:
+feat: 클릭모드 기능 구현
+fix: Gemini API 호출 오류 수정
+style: 버튼 호버 효과 추가
+```
+
+## 우선순위
+
+### P0 (필수 - MVP)
+1. 화면 분할 레이아웃
+2. 클릭모드 기본 동작
+3. Gemini API 연동
+4. 설정 기능
+
+### P1 (중요 - v1.0)
+1. 스크린모드
+2. 히스토리 패널
+3. GitHub 연동 (개발 페이지)
+4. 프롬프트 팝업
+
+### P2 (선택 - v1.5)
+1. 협업 GitHub 연동
+2. 충돌 방지
+3. 다크 모드
+4. 히스토리 필터/검색
+
+---
+
+**이 규칙을 벗어난 코드는 절대 작성하지 마세요!**
