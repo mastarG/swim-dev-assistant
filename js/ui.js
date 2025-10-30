@@ -311,6 +311,16 @@ const UI = {
     if (!modalContainer) return;
 
     const settings = Storage.Settings.loadAll();
+    
+    console.log('🔧 Opening settings modal...', {
+      geminiApiKey: settings.geminiApiKey ? '***' + settings.geminiApiKey.slice(-4) : 'empty',
+      githubRepoUrl: settings.githubRepoUrl || 'empty',
+      githubToken: settings.githubToken ? '***' + settings.githubToken.slice(-4) : 'empty',
+      collabGithubRepoUrl: settings.collabGithubRepoUrl || 'empty',
+      collabGithubToken: settings.collabGithubToken ? '***' + settings.collabGithubToken.slice(-4) : 'empty',
+      theme: settings.theme,
+      fontSize: settings.fontSize
+    });
 
     const modalHTML = `
       <div class="modal-overlay" id="settingsModal">

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Storage Test - Swim Developer Assistant</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f7;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #1d1d1f;
+    }
+    .test-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #d2d2d7;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .test-button {
+      background: #007aff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    .test-button:hover {
+      background: #0051d5;
+    }
+    .test-button.secondary {
+      background: #8e8e93;
+    }
+    .test-button.secondary:hover {
+      background: #636366;
+    }
+    .result {
+      background: #f5f5f7;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success {
+      color: #34c759;
+      font-weight: bold;
+    }
+    .error {
+      color: #ff3b30;
+      font-weight: bold;
+    }
+    .warning {
+      color: #ff9500;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Swim Developer Assistant - Storage Test</h1>
+  
+  <div class="test-section">
+    <h2>1. LocalStorage 기본 테스트</h2>
+    <p>브라우저의 LocalStorage가 정상적으로 작동하는지 확인합니다.</p>
+    <button class="test-button" onclick="testBasicStorage()">기본 테스트 실행</button>
+    <div id="basic-result" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. 암호화/복호화 테스트</h2>
+    <p>Base64 인코딩/디코딩이 정상 작동하는지 확인합니다.</p>
+    <input type="text" class="test-input" id="encrypt-input" placeholder="테스트할 문자열 입력 (예: AIzaSyABC123...)">
+    <button class="test-button" onclick="testEncryption()">암호화 테스트</button>
+    <div id="encrypt-result" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Settings 저장/로드 테스트</h2>
+    <p>실제 애플리케이션의 Storage.Settings 모듈을 테스트합니다.</p>
+    <input type="text" class="test-input" id="gemini-key" placeholder="Gemini API Key">
+    <input type="text" class="test-input" id="github-url" placeholder="GitHub Repository URL">
+    <button class="test-button" onclick="testSettingsSave()">설정 저장</button>
+    <button class="test-button secondary" onclick="testSettingsLoad()">설정 로드</button>
+    <button class="test-button secondary" onclick="testSettingsClear()">설정 삭제</button>
+    <div id="settings-result" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. LocalStorage 상태 확인</h2>
+    <p>현재 LocalStorage에 저장된 모든 데이터를 확인합니다.</p>
+    <button class="test-button" onclick="inspectStorage()">전체 조사</button>
+    <div id="inspect-result" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. 모듈 로드 상태</h2>
+    <p>Storage.js 모듈이 정상적으로 로드되었는지 확인합니다.</p>
+    <div id="module-status" class="result"></div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script>
+    // Check module load status
+    window.addEventListener('DOMContentLoaded', () => {
+      const status = document.getElementById('module-status');
+      if (typeof Storage !== 'undefined') {
+        status.innerHTML = '<span class="success">✅ Storage 모듈 로드 성공</span>\n';
+        status.innerHTML += `Settings 메서드: ${Object.keys(Storage.Settings).join(', ')}`;
+      } else {
+        status.innerHTML = '<span class="error">❌ Storage 모듈 로드 실패</span>';
+      }
+    });
+
+    function testBasicStorage() {
+      const result = document.getElementById('basic-result');
+      let output = '';
+      
+      try {
+        // Test 1: Simple save/load
+        localStorage.setItem('test_key', 'test_value');
+        const loaded = localStorage.getItem('test_key');
+        
+        if (loaded === 'test_value') {
+          output += '<span class="success">✅ Test 1: 기본 저장/로드 성공</span>\n';
+        } else {
+          output += '<span class="error">❌ Test 1: 기본 저장/로드 실패</span>\n';
+          output += `Expected: 'test_value', Got: '${loaded}'\n`;
+        }
+        
+        // Test 2: Remove
+        localStorage.removeItem('test_key');
+        const removed = localStorage.getItem('test_key');
+        
+        if (removed === null) {
+          output += '<span class="success">✅ Test 2: 삭제 성공</span>\n';
+        } else {
+          output += '<span class="error">❌ Test 2: 삭제 실패</span>\n';
+        }
+        
+        // Test 3: Quota test (save large data)
+        try {
+          const largeData = 'x'.repeat(1000000); // 1MB
+          localStorage.setItem('test_large', largeData);
+          localStorage.removeItem('test_large');
+          output += '<span class="success">✅ Test 3: 대용량 저장 성공 (quota 충분)</span>\n';
+        } catch (e) {
+          output += '<span class="warning">⚠️  Test 3: 대용량 저장 실패 (quota 부족 가능성)</span>\n';
+          output += `Error: ${e.message}\n`;
+        }
+        
+      } catch (error) {
+        output += '<span class="error">❌ LocalStorage 사용 불가</span>\n';
+        output += `Error: ${error.message}\n`;
+      }
+      
+      result.innerHTML = output;
+    }
+
+    function testEncryption() {
+      const result = document.getElementById('encrypt-result');
+      const input = document.getElementById('encrypt-input').value;
+      let output = '';
+      
+      if (!input) {
+        result.innerHTML = '<span class="warning">⚠️  테스트할 문자열을 입력하세요</span>';
+        return;
+      }
+      
+      try {
+        // Test encryption
+        const encrypted = btoa(input);
+        output += `원본: ${input}\n`;
+        output += `암호화: ${encrypted}\n\n`;
+        
+        // Test decryption
+        const decrypted = atob(encrypted);
+        
+        if (decrypted === input) {
+          output += '<span class="success">✅ 암호화/복호화 성공</span>\n';
+        } else {
+          output += '<span class="error">❌ 암호화/복호화 실패</span>\n';
+          output += `Expected: ${input}\n`;
+          output += `Got: ${decrypted}\n`;
+        }
+        
+      } catch (error) {
+        output += '<span class="error">❌ 암호화 오류</span>\n';
+        output += `Error: ${error.message}\n`;
+      }
+      
+      result.innerHTML = output;
+    }
+
+    function testSettingsSave() {
+      const result = document.getElementById('settings-result');
+      const geminiKey = document.getElementById('gemini-key').value;
+      const githubUrl = document.getElementById('github-url').value;
+      let output = '';
+      
+      try {
+        output += '=== 저장 시작 ===\n\n';
+        
+        // Save Gemini API Key
+        const geminiSaved = Storage.Settings.saveGeminiApiKey(geminiKey);
+        output += `Gemini API Key 저장: ${geminiSaved ? '✅ 성공' : '❌ 실패'}\n`;
+        output += `입력값: ${geminiKey ? '***' + geminiKey.slice(-4) : '(비어있음)'}\n\n`;
+        
+        // Save GitHub URL
+        const githubSaved = Storage.Settings.saveGithubRepoUrl(githubUrl);
+        output += `GitHub URL 저장: ${githubSaved ? '✅ 성공' : '❌ 실패'}\n`;
+        output += `입력값: ${githubUrl}\n\n`;
+        
+        // Immediate verification
+        const immediateLoad = Storage.Settings.loadAll();
+        output += '=== 즉시 검증 ===\n';
+        output += `Gemini Key: ${immediateLoad.geminiApiKey ? '***' + immediateLoad.geminiApiKey.slice(-4) : '(없음)'}\n`;
+        output += `GitHub URL: ${immediateLoad.githubRepoUrl || '(없음)'}\n\n`;
+        
+        if (geminiKey && immediateLoad.geminiApiKey !== geminiKey) {
+          output += '<span class="error">❌ Gemini Key 검증 실패!</span>\n';
+        }
+        if (githubUrl && immediateLoad.githubRepoUrl !== githubUrl) {
+          output += '<span class="error">❌ GitHub URL 검증 실패!</span>\n';
+        }
+        
+        output += '\n<span class="success">✅ 저장 완료. "설정 로드" 버튼을 눌러 확인하세요.</span>';
+        
+      } catch (error) {
+        output += '<span class="error">❌ 저장 중 오류 발생</span>\n';
+        output += `Error: ${error.message}\n`;
+      }
+      
+      result.innerHTML = output;
+    }
+
+    function testSettingsLoad() {
+      const result = document.getElementById('settings-result');
+      let output = '';
+      
+      try {
+        output += '=== 설정 로드 ===\n\n';
+        
+        const settings = Storage.Settings.loadAll();
+        
+        output += `Gemini API Key: ${settings.geminiApiKey ? '***' + settings.geminiApiKey.slice(-4) : '(없음)'}\n`;
+        output += `GitHub URL: ${settings.githubRepoUrl || '(없음)'}\n`;
+        output += `GitHub Token: ${settings.githubToken ? '***' + settings.githubToken.slice(-4) : '(없음)'}\n`;
+        output += `Collab URL: ${settings.collabGithubRepoUrl || '(없음)'}\n`;
+        output += `Collab Token: ${settings.collabGithubToken ? '***' + settings.collabGithubToken.slice(-4) : '(없음)'}\n`;
+        output += `Theme: ${settings.theme}\n`;
+        output += `Font Size: ${settings.fontSize}\n\n`;
+        
+        // Load into form
+        if (settings.geminiApiKey) {
+          document.getElementById('gemini-key').value = settings.geminiApiKey;
+          output += '<span class="success">✅ Gemini Key를 입력창에 로드했습니다</span>\n';
+        }
+        if (settings.githubRepoUrl) {
+          document.getElementById('github-url').value = settings.githubRepoUrl;
+          output += '<span class="success">✅ GitHub URL을 입력창에 로드했습니다</span>\n';
+        }
+        
+      } catch (error) {
+        output += '<span class="error">❌ 로드 중 오류 발생</span>\n';
+        output += `Error: ${error.message}\n`;
+      }
+      
+      result.innerHTML = output;
+    }
+
+    function testSettingsClear() {
+      const result = document.getElementById('settings-result');
+      let output = '';
+      
+      if (!confirm('모든 설정을 삭제하시겠습니까?')) {
+        return;
+      }
+      
+      try {
+        // Clear all swim_dev_assistant keys
+        const keys = Object.keys(localStorage);
+        const swimKeys = keys.filter(k => k.startsWith('swim_dev_assistant_'));
+        
+        swimKeys.forEach(key => {
+          localStorage.removeItem(key);
+          output += `삭제: ${key}\n`;
+        });
+        
+        output += `\n<span class="success">✅ ${swimKeys.length}개 항목 삭제 완료</span>\n`;
+        
+        // Clear form
+        document.getElementById('gemini-key').value = '';
+        document.getElementById('github-url').value = '';
+        
+      } catch (error) {
+        output += '<span class="error">❌ 삭제 중 오류 발생</span>\n';
+        output += `Error: ${error.message}\n`;
+      }
+      
+      result.innerHTML = output;
+    }
+
+    function inspectStorage() {
+      const result = document.getElementById('inspect-result');
+      let output = '';
+      
+      try {
+        output += '=== LocalStorage 전체 조사 ===\n\n';
+        
+        const keys = Object.keys(localStorage);
+        const swimKeys = keys.filter(k => k.startsWith('swim_dev_assistant_'));
+        
+        output += `전체 항목 수: ${keys.length}\n`;
+        output += `Swim Dev Assistant 항목 수: ${swimKeys.length}\n\n`;
+        
+        if (swimKeys.length === 0) {
+          output += '<span class="warning">⚠️  저장된 설정이 없습니다</span>\n';
+        } else {
+          swimKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            const displayValue = value.length > 50 ? value.substring(0, 50) + '...' : value;
+            output += `${key}:\n  ${displayValue}\n\n`;
+          });
+        }
+        
+        // Check quota
+        let totalSize = 0;
+        keys.forEach(key => {
+          totalSize += key.length + (localStorage.getItem(key)?.length || 0);
+        });
+        
+        output += `\n예상 사용량: ${(totalSize / 1024).toFixed(2)} KB\n`;
+        output += `(일반적인 한도: 5-10 MB)\n`;
+        
+      } catch (error) {
+        output += '<span class="error">❌ 조사 중 오류 발생</span>\n';
+        output += `Error: ${error.message}\n`;
+      }
+      
+      result.innerHTML = output;
+    }
+  </script>
+</body>
+</html>
