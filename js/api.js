@@ -10,8 +10,8 @@ const API = {
    * Gemini AI API
    */
   Gemini: {
-    BASE_URL: 'https://generativelanguage.googleapis.com/v1',
-    MODEL: 'gemini-2.0-flash-exp',
+    BASE_URL: 'https://generativelanguage.googleapis.com/v1beta',
+    MODEL: 'gemini-1.5-flash',
 
     /**
      * Generate content using Gemini API
