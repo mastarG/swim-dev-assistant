@@ -85,28 +85,62 @@ const App = {
    * Setup all event listeners
    */
   setupEventListeners() {
+    console.log('🔧 Setting up event listeners...');
+
     // Top navigation buttons
-    document.getElementById('btnClickMode')?.addEventListener('click', () => this.setMode('click'));
-    document.getElementById('btnScreenMode')?.addEventListener('click', () => this.setMode('screen'));
-    document.getElementById('btnRefresh')?.addEventListener('click', () => this.refreshPreview());
-    document.getElementById('btnPrompt')?.addEventListener('click', () => UI.showPromptPopup());
-    document.getElementById('btnHistory')?.addEventListener('click', () => UI.toggleHistoryPanel());
-    document.getElementById('btnSettings')?.addEventListener('click', () => UI.showSettingsModal());
+    document.getElementById('btnHistory')?.addEventListener('click', () => {
+      console.log('📋 History button clicked');
+      UI.toggleHistoryPanel();
+    });
+    document.getElementById('btnSettings')?.addEventListener('click', () => {
+      console.log('⚙️ Settings button clicked');
+      UI.showSettingsModal();
+    });
 
     // URL input and load button
-    document.getElementById('btnLoadUrl')?.addEventListener('click', () => this.loadUrlFromInput());
+    document.getElementById('btnLoadUrl')?.addEventListener('click', () => {
+      console.log('🔗 Load URL button clicked');
+      this.loadUrlFromInput();
+    });
     const urlInput = document.getElementById('urlInput');
     urlInput?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
+        console.log('⏎ Enter pressed in URL input');
         this.loadUrlFromInput();
       }
     });
 
+    // Preview panel toolbar buttons
+    document.getElementById('btnClickMode')?.addEventListener('click', () => {
+      console.log('👆 Click mode button clicked');
+      this.setMode('click');
+    });
+    document.getElementById('btnScreenMode')?.addEventListener('click', () => {
+      console.log('📐 Screen mode button clicked');
+      this.setMode('screen');
+    });
+    document.getElementById('btnRefresh')?.addEventListener('click', () => {
+      console.log('🔄 Refresh button clicked');
+      this.refreshPreview();
+    });
+
     // Input panel buttons
-    document.getElementById('btnReset')?.addEventListener('click', () => this.resetInput());
-    document.getElementById('btnSend')?.addEventListener('click', () => this.sendMessage());
-    document.getElementById('btnCopy')?.addEventListener('click', () => this.copyResult());
-    document.getElementById('btnAttach')?.addEventListener('click', () => this.attachFile());
+    document.getElementById('btnPrompt')?.addEventListener('click', () => {
+      console.log('✨ Prompt button clicked');
+      UI.showPromptPopup();
+    });
+    document.getElementById('btnAttach')?.addEventListener('click', () => {
+      console.log('📎 Attach button clicked');
+      this.attachFile();
+    });
+    document.getElementById('btnSend')?.addEventListener('click', () => {
+      console.log('📤 Send button clicked');
+      this.sendMessage();
+    });
+    document.getElementById('btnCopy')?.addEventListener('click', () => {
+      console.log('📋 Copy button clicked');
+      this.copyResult();
+    });
 
     // Message input
     const messageInput = document.getElementById('messageInput');
